@@ -1,39 +1,54 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Control de Proyectos · SE</title><style>
-:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0}.top{background:#10243e;color:white;padding:24px 4vw}.ey{font-size:11px;letter-spacing:1.8px;color:#74c9ef;font-weight:800}.top h1{margin:5px 0;font-size:27px}.top p{margin:0;color:#bed0e3}.wrap{max-width:1450px;margin:auto;padding:20px 4vw}.kpis,.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card,.panel{background:white;border:1px solid #dce4ec;border-radius:14px;padding:17px;box-shadow:0 2px 9px #18314d0c}.kpi{font-size:29px;font-weight:800;margin-top:6px}.muted{color:#718096;font-size:12px}.layout{display:grid;grid-template-columns:1.15fr 1.85fr;gap:14px;margin-top:14px}.panel h2{font-size:16px;margin:0 0 13px}.filters{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.filters select{padding:9px;border:1px solid #cad5e0;border-radius:8px;background:white}.project{display:grid;grid-template-columns:2fr .8fr .8fr .8fr;gap:8px;align-items:center;padding:11px 0;border-bottom:1px solid #edf1f5}.project:last-child{border:0}.badge{display:inline-block;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700}.green{background:#dff5e9;color:#187348}.yellow{background:#fff1c9;color:#8a6500}.red{background:#ffe0e0;color:#a62d2d}.score{font-size:22px;font-weight:850}.alert{padding:11px;border-left:4px solid #e05050;background:#fff5f5;border-radius:7px;margin:8px 0;font-size:13px}.alert.y{border-color:#e1ac2b;background:#fffaeb}.table{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;color:#68788c;background:#f6f8fa}th,td{padding:10px;border-bottom:1px solid #e8edf2;white-space:nowrap}tr[data-i]{cursor:pointer}tr[data-i]:hover{background:#f5faff}.detail{margin-top:14px}.bar{height:7px;background:#e7edf3;border-radius:9px;overflow:hidden}.bar div{height:100%;background:#377db8}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:#f7f9fb;padding:10px;border-radius:8px}.note{font-size:12px;color:#718096;margin-top:14px}@media(max-width:900px){.kpis,.grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.project{grid-template-columns:1.7fr .7fr .7fr}}@media(max-width:520px){.kpis,.grid,.metrics{grid-template-columns:1fr}.project{grid-template-columns:1fr 1fr}}</style></head><body>
-<div class="top"><div class="ey">PROTOTIPO SIMULADO · SOLUCIONES EMPRESARIALES</div><h1>Centro de Control de Proyectos</h1><p>Gestión por excepción · rentabilidad · ejecución · facturación · documentación</p></div>
-<main class="wrap"><section class="kpis" id="kpis"></section><div class="filters"><select id="territory"><option value="">Todos los territorios</option><option>Sur</option><option>Norte/Centro</option></select><select id="portfolio"><option value="">Todos los portafolios</option><option>Seguridad</option><option>Capacitación</option><option>Consultoría</option></select><select id="owner"><option value="">Todos los responsables</option></select></div>
-<section class="layout"><div class="panel"><h2>Atención gerencial</h2><div id="alerts"></div></div><div class="panel"><h2>Ranking de salud de proyectos</h2><div id="ranking"></div></div></section>
-<section class="panel" style="margin-top:14px"><h2>Portafolio activo</h2><div class="table"><table><thead><tr><th>Proyecto</th><th>Cliente</th><th>Portafolio</th><th>Territorio</th><th>Responsable</th><th>Venta S/</th><th>Avance</th><th>Facturación</th><th>Margen</th><th>Docs.</th><th>ISP</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
-<section class="panel detail" id="detail"><h2>Detalle del proyecto</h2><div class="muted">Haz clic en un proyecto para ver su diagnóstico.</div></section><div class="note">Datos 100% ficticios. El ISP es un modelo demostrativo para discutir las reglas de control antes de utilizar información real.</div></main>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Control de Proyectos · Google Sheets</title>
+<style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0}.top{background:#10243e;color:white;padding:24px 4vw}.ey{font-size:11px;letter-spacing:1.8px;color:#74c9ef;font-weight:800}.top h1{margin:5px 0;font-size:27px}.top p{margin:0;color:#bed0e3}.wrap{max-width:1300px;margin:auto;padding:20px 4vw}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card,.panel{background:white;border:1px solid #dce4ec;border-radius:14px;padding:17px;box-shadow:0 2px 9px #18314d0c}.kpi{font-size:29px;font-weight:800;margin-top:6px}.muted{color:#718096;font-size:12px}.panel{margin-top:14px}.panel h2{font-size:16px;margin:0 0 13px}.table{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#68788c;background:#f6f8fa}th,td{padding:11px;border-bottom:1px solid #e8edf2}tr:hover{background:#f7fbff}.bar{height:8px;background:#e7edf3;border-radius:9px;overflow:hidden;min-width:120px}.bar div{height:100%;background:#377db8}.status{margin:0 0 14px;padding:10px 12px;border-radius:9px;background:#eaf6ff;color:#245a7a;font-size:13px}.status.error{background:#fff0f0;color:#9d3030}.note{font-size:12px;color:#718096;margin-top:14px}.search{padding:10px 12px;border:1px solid #cad5e0;border-radius:9px;width:min(360px,100%);margin-bottom:12px}@media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.kpis{grid-template-columns:1fr}}
+</style>
+</head><body>
+<div class="top"><div class="ey">DATOS EN VIVO · GOOGLE SHEETS</div><h1>Centro de Control de Proyectos</h1><p>La información se actualiza desde la hoja publicada al recargar esta página.</p></div>
+<main class="wrap">
+<div id="status" class="status">Cargando datos desde Google Sheets…</div>
+<section class="kpis" id="kpis"></section>
+<section class="panel"><h2>Portafolio de proyectos</h2><input id="search" class="search" placeholder="Buscar proyecto o cliente…" disabled>
+<div class="table"><table><thead><tr><th>Proyecto</th><th>Cliente</th><th>Venta (S/.)</th><th>Avance (%)</th><th>Progreso</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
+<div class="note">Fuente: Google Sheets publicado como CSV. Esta versión utiliza únicamente Proyecto, Cliente, Venta (S/.) y Avance (%); no calcula ISP, margen ni facturación hasta que esos datos existan en la fuente.</div>
+</main>
 <script>
-const P=[
-["Programa Integral SST","Andes Copper","Seguridad","Sur","Christian",3200000,78,69,31,74,72,"Documentación rezagada y facturación debajo de ejecución"],
-["Acreditación Operadores","Minera Horizonte","Seguridad","Sur","Jaime",1800000,62,58,38,96,88,"Operación estable"],
-["Escuela Mantenimiento","Cobre Norte","Capacitación","Norte/Centro","José Miguel",1250000,55,42,34,91,75,"Facturación 13 pp debajo de ejecución"],
-["Procedimientos Planta","Minerales del Pacífico","Consultoría","Sur","Christian",920000,81,74,27,68,61,"Margen y documentación bajo objetivo"],
-["Inducción Contratistas","Mina Central","Seguridad","Norte/Centro","Jaime",2400000,88,86,41,98,94,"Operación estable"],
-["Academia Supervisores","Cobre Azul","Capacitación","Sur","Christian",680000,43,41,44,100,92,"Operación estable"],
-["Estrategias Mantenimiento","Planta Andina","Consultoría","Norte/Centro","José Miguel",1550000,37,24,22,83,54,"Margen crítico y facturación rezagada"],
-["Formación Técnica Mina","Altiplano Mining","Capacitación","Sur","Christian",1100000,71,65,36,88,84,"Seguimiento normal"],
-["Acreditación Alto Riesgo","Minería del Sur","Seguridad","Sur","Jaime",2100000,66,61,35,79,78,"Documentación requiere atención"],
-["Optimización RAM","Copper Engineering","Consultoría","Norte/Centro","José Miguel",760000,48,45,46,93,91,"Operación estable"],
-["Escuela Operadores","Mina Esperanza","Capacitación","Norte/Centro","José Miguel",890000,59,55,39,95,89,"Operación estable"],
-["Onboarding Mina","Proyecto Cobre Verde","Seguridad","Sur","Jaime",1450000,92,78,30,86,69,"Facturación 14 pp debajo de ejecución"],
-["Plan Maestro Repuestos","Procesadora Andina","Consultoría","Sur","Christian",640000,29,18,33,72,66,"Avance temprano con facturación baja"],
-["Capacitación Parada Planta","Metales Centro","Capacitación","Norte/Centro","José Miguel",510000,84,82,42,97,95,"Operación estable"],
-["Certificación Técnicos","Cobre Futuro","Capacitación","Sur","Christian",730000,51,49,37,94,90,"Operación estable"]];
-const data=P.map((p,i)=>({id:i,name:p[0],client:p[1],portfolio:p[2],territory:p[3],owner:p[4],sale:p[5],progress:p[6],billing:p[7],margin:p[8],docs:p[9],isp:p[10],obs:p[11]}));
-const fmt=n=>new Intl.NumberFormat("es-PE").format(n), cls=s=>s<70?"red":s<85?"yellow":"green", state=s=>s<70?"Crítico":s<85?"Atención":"Saludable";
-for(const o of [...new Set(data.map(x=>x.owner))])owner.innerHTML+=`<option>${o}</option>`;
-function filtered(){return data.filter(x=>(!territory.value||x.territory==territory.value)&&(!portfolio.value||x.portfolio==portfolio.value)&&(!owner.value||x.owner==owner.value))}
-function render(){
- const a=filtered(), sales=a.reduce((s,x)=>s+x.sale,0), avg=a.length?a.reduce((s,x)=>s+x.isp,0)/a.length:0, red=a.filter(x=>x.isp<70).length, yellow=a.filter(x=>x.isp>=70&&x.isp<85).length;
- kpis.innerHTML=`<div class="card"><div class="muted">VENTA EN CARTERA</div><div class="kpi">S/ ${(sales/1e6).toFixed(1)} M</div></div><div class="card"><div class="muted">PROYECTOS ACTIVOS</div><div class="kpi">${a.length}</div></div><div class="card"><div class="muted">ISP PROMEDIO</div><div class="kpi">${avg.toFixed(0)} / 100</div></div><div class="card"><div class="muted">REQUIEREN ATENCIÓN</div><div class="kpi">${red} 🔴 · ${yellow} 🟡</div></div>`;
- const risks=[...a].filter(x=>x.isp<85).sort((x,y)=>x.isp-y.isp);
- alerts.innerHTML=risks.length?risks.slice(0,6).map(x=>`<div class="alert ${x.isp>=70?'y':''}"><b>${x.name}</b> · ISP ${x.isp}<br><span class="muted">${x.obs}</span></div>`).join(""):'<div class="muted">Sin alertas para este filtro.</div>';
- ranking.innerHTML=[...a].sort((x,y)=>x.isp-y.isp).slice(0,8).map(x=>`<div class="project"><div><b>${x.name}</b><br><span class="muted">${x.client}</span></div><div class="score">${x.isp}</div><div><span class="badge ${cls(x.isp)}">${state(x.isp)}</span></div><div class="muted">${x.owner}</div></div>`).join("");
- tbody.innerHTML=a.map(x=>`<tr data-i="${x.id}" onclick="show(${x.id})"><td><b>${x.name}</b></td><td>${x.client}</td><td>${x.portfolio}</td><td>${x.territory}</td><td>${x.owner}</td><td>${fmt(x.sale)}</td><td>${x.progress}%</td><td>${x.billing}%</td><td>${x.margin}%</td><td>${x.docs}%</td><td><span class="badge ${cls(x.isp)}">${x.isp}</span></td></tr>`).join("");
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSf98yMLXDwumObslT3vjDE4A_UtjPzpi_hUE8_sGqt4YAOZVRQ6P5kSx35m94qQphnDHxGV9CqxNpG/pub?gid=1486276563&single=true&output=csv";
+let data=[];
+const fmt=n=>new Intl.NumberFormat("es-PE",{maximumFractionDigits:0}).format(n||0);
+function parseCSV(text){
+ const rows=[];let row=[],cell="",q=false;
+ for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];
+  if(c=='"'&&q&&n=='"'){cell+='"';i++}
+  else if(c=='"')q=!q;
+  else if(c==','&&!q){row.push(cell);cell=""}
+  else if((c=='\n'||c=='\r')&&!q){if(c=='\r'&&n=='\n')i++;row.push(cell);if(row.some(v=>v.trim()!==""))rows.push(row);row=[];cell=""}
+  else cell+=c;
+ }
+ if(cell.length||row.length){row.push(cell);if(row.some(v=>v.trim()!==""))rows.push(row)}
+ return rows;
 }
-function show(id){const x=data[id], gap=x.progress-x.billing;detail.innerHTML=`<h2>${x.name} · ${x.client}</h2><div class="metrics"><div class="metric"><span class="muted">ISP</span><div class="score">${x.isp}/100</div><span class="badge ${cls(x.isp)}">${state(x.isp)}</span></div><div class="metric"><span class="muted">Margen proyectado</span><div class="score">${x.margin}%</div></div><div class="metric"><span class="muted">Brecha ejecución/facturación</span><div class="score">${gap} pp</div></div><div class="metric"><span class="muted">Avance</span><div class="score">${x.progress}%</div><div class="bar"><div style="width:${x.progress}%"></div></div></div><div class="metric"><span class="muted">Documentación</span><div class="score">${x.docs}%</div><div class="bar"><div style="width:${x.docs}%"></div></div></div><div class="metric"><span class="muted">Venta</span><div class="score">S/ ${fmt(x.sale)}</div></div></div><p><b>Lectura gerencial:</b> ${x.obs}.</p><p class="muted">Responsable: ${x.owner} · ${x.territory} · ${x.portfolio}</p>`;detail.scrollIntoView({behavior:"smooth",block:"start"})}
-[territory,portfolio,owner].forEach(e=>e.onchange=render);render();
+function number(v){if(v==null)return 0;let s=String(v).trim().replace(/S\/?\.?/gi,"").replace(/%/g,"").replace(/\s/g,"");if(s.includes(",")&&s.includes("."))s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");else if(s.includes(","))s=s.replace(",",".");return Number(s)||0}
+function normalize(s){return String(s||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"")}
+function render(list=data){
+ const sales=list.reduce((a,x)=>a+x.sale,0),avg=list.length?list.reduce((a,x)=>a+x.progress,0)/list.length:0,advanced=list.filter(x=>x.progress>=75).length;
+ kpis.innerHTML=`<div class="card"><div class="muted">VENTA EN CARTERA</div><div class="kpi">S/ ${fmt(sales)}</div></div><div class="card"><div class="muted">PROYECTOS</div><div class="kpi">${list.length}</div></div><div class="card"><div class="muted">AVANCE PROMEDIO</div><div class="kpi">${avg.toFixed(1)}%</div></div><div class="card"><div class="muted">AVANCE ≥ 75%</div><div class="kpi">${advanced}</div></div>`;
+ tbody.innerHTML=list.map(x=>`<tr><td><b>${x.project}</b></td><td>${x.client}</td><td>S/ ${fmt(x.sale)}</td><td>${x.progress}%</td><td><div class="bar"><div style="width:${Math.max(0,Math.min(100,x.progress))}%"></div></div></td></tr>`).join("");
+}
+async function load(){
+ try{
+  const res=await fetch(CSV_URL,{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);
+  const rows=parseCSV(await res.text());if(rows.length<2)throw new Error("La hoja no contiene filas de datos.");
+  const h=rows[0].map(normalize),idx={project:h.indexOf("proyecto"),client:h.indexOf("cliente"),sale:h.indexOf("ventas"),progress:h.indexOf("avance")};
+  if(idx.sale<0)idx.sale=h.findIndex(x=>x.startsWith("venta"));if(idx.progress<0)idx.progress=h.findIndex(x=>x.startsWith("avance"));
+  if(Object.values(idx).some(i=>i<0))throw new Error("No encuentro los encabezados Proyecto, Cliente, Venta y Avance.");
+  data=rows.slice(1).map(r=>({project:(r[idx.project]||"").trim(),client:(r[idx.client]||"").trim(),sale:number(r[idx.sale]),progress:number(r[idx.progress])})).filter(x=>x.project);
+  render();search.disabled=false;status.textContent=`Conectado a Google Sheets · ${data.length} proyectos cargados · actualización: ${new Date().toLocaleTimeString("es-PE")}`;
+ }catch(e){status.className="status error";status.textContent="No se pudieron cargar los datos: "+e.message;kpis.innerHTML="";tbody.innerHTML='<tr><td colspan="5">Revisa que la publicación CSV siga activa.</td></tr>'}
+}
+search.addEventListener("input",()=>{const q=normalize(search.value);render(data.filter(x=>normalize(x.project+" "+x.client).includes(q)))});
+load();
 </script></body></html>
