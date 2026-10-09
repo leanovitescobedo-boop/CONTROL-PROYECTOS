@@ -7,16 +7,16 @@
 :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0}.top{background:#10243e;color:white;padding:24px 4vw}.ey{font-size:11px;letter-spacing:1.8px;color:#74c9ef;font-weight:800}.top h1{margin:5px 0;font-size:27px}.top p{margin:0;color:#bed0e3}.wrap{max-width:1300px;margin:auto;padding:20px 4vw}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card,.panel{background:white;border:1px solid #dce4ec;border-radius:14px;padding:17px;box-shadow:0 2px 9px #18314d0c}.kpi{font-size:29px;font-weight:800;margin-top:6px}.muted{color:#718096;font-size:12px}.panel{margin-top:14px}.panel h2{font-size:16px;margin:0 0 13px}.table{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#68788c;background:#f6f8fa}th,td{padding:11px;border-bottom:1px solid #e8edf2}tr:hover{background:#f7fbff}.bar{height:8px;background:#e7edf3;border-radius:9px;overflow:hidden;min-width:120px}.bar div{height:100%;background:#377db8}.status{margin:0 0 14px;padding:10px 12px;border-radius:9px;background:#eaf6ff;color:#245a7a;font-size:13px}.status.error{background:#fff0f0;color:#9d3030}.note{font-size:12px;color:#718096;margin-top:14px}.search{padding:10px 12px;border:1px solid #cad5e0;border-radius:9px;width:min(360px,100%);margin-bottom:12px}@media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.kpis{grid-template-columns:1fr}}
 </style>
 </head><body>
-<div class="top"><div class="ey">DATOS EN VIVO · GOOGLE SHEETS</div><h1>Centro de Control de Proyectos</h1><p>La información se actualiza desde la hoja publicada al recargar esta página.</p></div>
+<div class="top"><div class="ey">DATOS EN VIVO · GOOGLE SHEETS</div><h1>Centro de Control de Proyectos</h1><p>La información se consulta directamente desde Google Sheets mediante Apps Script al recargar esta página.</p></div>
 <main class="wrap">
 <div id="status" class="status">Cargando datos desde Google Sheets…</div>
 <section class="kpis" id="kpis"></section>
 <section class="panel"><h2>Portafolio de proyectos</h2><input id="search" class="search" placeholder="Buscar proyecto o cliente…" disabled>
 <div class="table"><table><thead><tr><th>Proyecto</th><th>Cliente</th><th>Venta (S/.)</th><th>Avance (%)</th><th>Progreso</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
-<div class="note">Fuente: Google Sheets publicado como CSV. Esta versión utiliza únicamente Proyecto, Cliente, Venta (S/.) y Avance (%); no calcula ISP, margen ni facturación hasta que esos datos existan en la fuente.</div>
+<div class="note">Fuente: Google Sheets mediante Google Apps Script. Esta versión utiliza únicamente Proyecto, Cliente, Venta (S/.) y Avance (%); no calcula ISP, margen ni facturación hasta que esos datos existan en la fuente.</div>
 </main>
 <script>
-const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSf98yMLXDwumObslT3vjDE4A_UtjPzpi_hUE8_sGqt4YAOZVRQ6P5kSx35m94qQphnDHxGV9CqxNpG/pub?gid=1486276563&single=true&output=csv";
+const API_URL="https://script.google.com/macros/s/AKfycbxdzALgHZ-9FAlVMEkCSAZ2zM2cRUBqzkFZBlw70AcJCv5L5hrlENA87b2UHA73PqGT/exec";
 let data=[];
 const fmt=n=>new Intl.NumberFormat("es-PE",{maximumFractionDigits:0}).format(n||0);
 function parseCSV(text){
@@ -40,14 +40,14 @@ function render(list=data){
 }
 async function load(){
  try{
-  const res=await fetch(CSV_URL,{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);
-  const rows=parseCSV(await res.text());if(rows.length<2)throw new Error("La hoja no contiene filas de datos.");
-  const h=rows[0].map(normalize),idx={project:h.indexOf("proyecto"),client:h.indexOf("cliente"),sale:h.indexOf("ventas"),progress:h.indexOf("avance")};
-  if(idx.sale<0)idx.sale=h.findIndex(x=>x.startsWith("venta"));if(idx.progress<0)idx.progress=h.findIndex(x=>x.startsWith("avance"));
-  if(Object.values(idx).some(i=>i<0))throw new Error("No encuentro los encabezados Proyecto, Cliente, Venta y Avance.");
-  data=rows.slice(1).map(r=>({project:(r[idx.project]||"").trim(),client:(r[idx.client]||"").trim(),sale:number(r[idx.sale]),progress:number(r[idx.progress])})).filter(x=>x.project);
-  render();search.disabled=false;status.textContent=`Conectado a Google Sheets · ${data.length} proyectos cargados · actualización: ${new Date().toLocaleTimeString("es-PE")}`;
- }catch(e){status.className="status error";status.textContent="No se pudieron cargar los datos: "+e.message;kpis.innerHTML="";tbody.innerHTML='<tr><td colspan="5">Revisa que la publicación CSV siga activa.</td></tr>'}
+  const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);
+  const rows=await res.json();if(!Array.isArray(rows))throw new Error("La respuesta del Apps Script no es válida.");
+  data=rows.map(r=>{
+   const entries=Object.entries(r), get=key=>{const e=entries.find(([k])=>normalize(k).startsWith(key));return e?e[1]:""};
+   return {project:String(get("proyecto")||"").trim(),client:String(get("cliente")||"").trim(),sale:number(get("venta")),progress:number(get("avance"))};
+  }).filter(x=>x.project);
+  render();search.disabled=false;status.className="status";status.textContent=`Conectado en vivo a Google Sheets · ${data.length} proyectos cargados · consulta: ${new Date().toLocaleTimeString("es-PE")}`;
+ }catch(e){status.className="status error";status.textContent="No se pudieron cargar los datos en vivo: "+e.message;kpis.innerHTML="";tbody.innerHTML='<tr><td colspan="5">Revisa la implementación de Apps Script y que el acceso sea “Cualquier persona”.</td></tr>'}
 }
 search.addEventListener("input",()=>{const q=normalize(search.value);render(data.filter(x=>normalize(x.project+" "+x.client).includes(q)))});
 load();
